@@ -1,0 +1,202 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Payload validation helpers
+    function isValidTask(data) {
+      return data.keys().hasAll(['title', 'category', 'priority', 'completed']) &&
+             data.keys().hasOnly(['title', 'category', 'priority', 'dueDate', 'completed', 'notes']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category in ['Work', 'Personal', 'Health', 'Finance', 'Family'] &&
+             data.priority in ['High', 'Medium', 'Low'] &&
+             data.completed is bool &&
+             (!data.keys().hasAll(['dueDate']) || (data.dueDate is string && data.dueDate.size() <= 50)) &&
+             (!data.keys().hasAll(['notes']) || (data.notes is string && data.notes.size() <= 500));
+    }
+
+    function isValidGoal(data) {
+      return data.keys().hasAll(['title', 'category', 'progress']) &&
+             data.keys().hasOnly(['title', 'category', 'progress', 'targetDate', 'milestones']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category in ['Career', 'Health', 'Wealth', 'Personal'] &&
+             data.progress is number && data.progress >= 0 && data.progress <= 100 &&
+             (!data.keys().hasAll(['targetDate']) || (data.targetDate is string && data.targetDate.size() <= 50)) &&
+             (!data.keys().hasAll(['milestones']) || data.milestones is list);
+    }
+
+    function isValidRoutine(data) {
+      return data.keys().hasAll(['time', 'title', 'category', 'completed', 'streak']) &&
+             data.keys().hasOnly(['time', 'title', 'category', 'completed', 'streak']) &&
+             data.time is string && data.time.size() <= 20 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category in ['Morning', 'Afternoon', 'Evening'] &&
+             data.completed is bool &&
+             data.streak is number && data.streak >= 0;
+    }
+
+    function isValidCalendar(data) {
+      return data.keys().hasAll(['title', 'time', 'category', 'day']) &&
+             data.keys().hasOnly(['title', 'time', 'category', 'attendees', 'day']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.time is string && data.time.size() <= 50 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.day is number && data.day >= 1 && data.day <= 31 &&
+             (!data.keys().hasAll(['attendees']) || (data.attendees is string && data.attendees.size() <= 100));
+    }
+
+    function isValidFinance(data) {
+      return data.keys().hasAll(['title', 'amount', 'type', 'category', 'date']) &&
+             data.keys().hasOnly(['title', 'amount', 'type', 'category', 'date']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.amount is number &&
+             data.type in ['income', 'expense'] &&
+             data.category in ['Housing', 'Food', 'Transport', 'Investment', 'Salary', 'Leisure'] &&
+             data.date is string && data.date.size() <= 30;
+    }
+
+    function isValidNote(data) {
+      return data.keys().hasAll(['title', 'folder', 'content', 'updatedAt']) &&
+             data.keys().hasOnly(['title', 'folder', 'content', 'updatedAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.folder in ['Personal', 'Ideas', 'Journal', 'Work'] &&
+             data.content is string && data.content.size() <= 5000 &&
+             data.updatedAt is string && data.updatedAt.size() <= 30;
+    }
+
+    function isValidDocument(data) {
+      return data.keys().hasAll(['name', 'category', 'uploadDate', 'size']) &&
+             data.keys().hasOnly(['name', 'category', 'uploadDate', 'size', 'expiryDate']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.category in ['Identity', 'Finance', 'Medical', 'Legal', 'Real Estate'] &&
+             data.uploadDate is string && data.uploadDate.size() <= 30 &&
+             data.size is string && data.size.size() <= 20 &&
+             (!data.keys().hasAll(['expiryDate']) || (data.expiryDate is string && data.expiryDate.size() <= 30));
+    }
+
+    function isValidHealth(data) {
+      return data.keys().hasAll(['waterDrank', 'sleepHours', 'weight', 'steps', 'heartRate']) &&
+             data.keys().hasOnly(['waterDrank', 'sleepHours', 'weight', 'steps', 'heartRate']) &&
+             data.waterDrank is number && data.waterDrank >= 0 &&
+             data.sleepHours is number && data.sleepHours >= 0 &&
+             data.weight is number && data.weight >= 0 &&
+             data.steps is number && data.steps >= 0 &&
+             data.heartRate is number && data.heartRate >= 0;
+    }
+
+    function isValidFamily(data) {
+      return data.keys().hasAll(['name', 'relation', 'status']) &&
+             data.keys().hasOnly(['name', 'relation', 'status', 'avatarColor']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.relation is string && data.relation.size() <= 50 &&
+             data.status is string && data.status.size() <= 200 &&
+             (!data.keys().hasAll(['avatarColor']) || (data.avatarColor is string && data.avatarColor.size() <= 50));
+    }
+
+    function isValidLearning(data) {
+      return data.keys().hasAll(['title', 'provider', 'progress', 'category', 'status']) &&
+             data.keys().hasOnly(['title', 'provider', 'progress', 'category', 'status']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.provider is string && data.provider.size() <= 100 &&
+             data.progress is number && data.progress >= 0 && data.progress <= 100 &&
+             data.category is string && data.category.size() <= 50 &&
+             data.status in ['In Progress', 'Completed', 'Bookmarked'];
+    }
+
+    function isValidEmergency(data) {
+      return data.keys().hasAll(['name', 'phone']) &&
+             data.keys().hasOnly(['name', 'phone', 'relation']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             (!data.keys().hasAll(['relation']) || (data.relation is string && data.relation.size() <= 50));
+    }
+
+    function isValidSettings(data) {
+      return data.keys().hasAll(['language']) &&
+             data.keys().hasOnly(['language', 'theme']) &&
+             data.language in ['en', 'bn', 'ar'] &&
+             (!data.keys().hasAll(['theme']) || (data.theme is string && data.theme.size() <= 30));
+    }
+
+    // Default deny-all catch-all rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // LifeFlow User-Isolated Data Architecture with Payload Validation
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /tasks/{taskId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(taskId);
+        allow create, update: if isOwner(userId) && isValidId(taskId) && isValidTask(request.resource.data);
+      }
+
+      match /goals/{goalId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(goalId);
+        allow create, update: if isOwner(userId) && isValidId(goalId) && isValidGoal(request.resource.data);
+      }
+
+      match /routines/{routineId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(routineId);
+        allow create, update: if isOwner(userId) && isValidId(routineId) && isValidRoutine(request.resource.data);
+      }
+
+      match /calendar/{eventId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(eventId);
+        allow create, update: if isOwner(userId) && isValidId(eventId) && isValidCalendar(request.resource.data);
+      }
+
+      match /finance/{entryId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(entryId);
+        allow create, update: if isOwner(userId) && isValidId(entryId) && isValidFinance(request.resource.data);
+      }
+
+      match /notes/{noteId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(noteId);
+        allow create, update: if isOwner(userId) && isValidId(noteId) && isValidNote(request.resource.data);
+      }
+
+      match /documents/{documentId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(documentId);
+        allow create, update: if isOwner(userId) && isValidId(documentId) && isValidDocument(request.resource.data);
+      }
+
+      match /health/{recordId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(recordId);
+        allow create, update: if isOwner(userId) && isValidId(recordId) && isValidHealth(request.resource.data);
+      }
+
+      match /family/{familyId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(familyId);
+        allow create, update: if isOwner(userId) && isValidId(familyId) && isValidFamily(request.resource.data);
+      }
+
+      match /learning/{itemId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(itemId);
+        allow create, update: if isOwner(userId) && isValidId(itemId) && isValidLearning(request.resource.data);
+      }
+
+      match /emergency/{recordId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(recordId);
+        allow create, update: if isOwner(userId) && isValidId(recordId) && isValidEmergency(request.resource.data);
+      }
+
+      match /settings/{settingId} {
+        allow read, list, delete: if isOwner(userId) && isValidId(settingId);
+        allow create, update: if isOwner(userId) && isValidId(settingId) && isValidSettings(request.resource.data);
+      }
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "entities": {
+    "Task": {
+      "title": "Task",
+      "description": "User task item",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "enum": ["Work", "Personal", "Health", "Finance", "Family"] },
+        "priority": { "type": "string", "enum": ["High", "Medium", "Low"] },
+        "dueDate": { "type": "string", "maxLength": 50 },
+        "completed": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["title", "category", "priority", "completed"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "User goal and milestones",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "enum": ["Career", "Health", "Wealth", "Personal"] },
+        "progress": { "type": "number" },
+        "targetDate": { "type": "string", "maxLength": 50 },
+        "milestones": { "type": "array" }
+      },
+      "required": ["title", "category", "progress"]
+    },
+    "Routine": {
+      "title": "Routine",
+      "description": "Daily habit routine item",
+      "type": "object",
+      "properties": {
+        "time": { "type": "string", "maxLength": 20 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "enum": ["Morning", "Afternoon", "Evening"] },
+        "completed": { "type": "boolean" },
+        "streak": { "type": "number" }
+      },
+      "required": ["time", "title", "category", "completed"]
+    },
+    "CalendarEvent": {
+      "title": "CalendarEvent",
+      "description": "Calendar scheduled event",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "time": { "type": "string", "maxLength": 50 },
+        "category": { "type": "string", "maxLength": 50 },
+        "attendees": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["title", "time", "category"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transaction entry",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "category": { "type": "string", "enum": ["Housing", "Food", "Transport", "Investment", "Salary", "Leisure"] },
+        "date": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["title", "amount", "type", "category", "date"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "Personal note or diary entry",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "folder": { "type": "string", "enum": ["Personal", "Ideas", "Journal", "Work"] },
+        "content": { "type": "string", "maxLength": 5000 },
+        "updatedAt": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["title", "folder", "content"]
+    },
+    "Document": {
+      "title": "Document",
+      "description": "Document metadata vault item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "enum": ["Identity", "Finance", "Medical", "Legal", "Real Estate"] },
+        "uploadDate": { "type": "string", "maxLength": 30 },
+        "size": { "type": "string", "maxLength": 20 },
+        "expiryDate": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["name", "category", "uploadDate", "size"]
+    },
+    "Health": {
+      "title": "Health",
+      "description": "Health and vital records",
+      "type": "object",
+      "properties": {
+        "waterDrank": { "type": "number" },
+        "sleepHours": { "type": "number" },
+        "weight": { "type": "number" },
+        "steps": { "type": "number" },
+        "heartRate": { "type": "number" }
+      },
+      "required": ["waterDrank", "sleepHours", "steps", "heartRate"]
+    },
+    "Family": {
+      "title": "Family",
+      "description": "Family member status",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "relation": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 200 },
+        "avatarColor": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["name", "relation", "status"]
+    },
+    "Learning": {
+      "title": "Learning",
+      "description": "Learning course progress",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "provider": { "type": "string", "maxLength": 100 },
+        "progress": { "type": "number" },
+        "category": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["In Progress", "Completed", "Bookmarked"] }
+      },
+      "required": ["title", "provider", "progress", "status"]
+    },
+    "Emergency": {
+      "title": "Emergency",
+      "description": "ICE contact or medical profile info",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "relation": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["name", "phone"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "User preference settings",
+      "type": "object",
+      "properties": {
+        "language": { "type": "string", "enum": ["en", "bn", "ar"] },
+        "theme": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["language"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/tasks/{taskId}": { "schema": { "$ref": "#/entities/Task" }, "description": "Tasks" },
+    "/users/{userId}/goals/{goalId}": { "schema": { "$ref": "#/entities/Goal" }, "description": "Goals" },
+    "/users/{userId}/routines/{routineId}": { "schema": { "$ref": "#/entities/Routine" }, "description": "Routines" },
+    "/users/{userId}/calendar/{eventId}": { "schema": { "$ref": "#/entities/CalendarEvent" }, "description": "Calendar" },
+    "/users/{userId}/finance/{entryId}": { "schema": { "$ref": "#/entities/Transaction" }, "description": "Finance" },
+    "/users/{userId}/notes/{noteId}": { "schema": { "$ref": "#/entities/Note" }, "description": "Notes" },
+    "/users/{userId}/documents/{documentId}": { "schema": { "$ref": "#/entities/Document" }, "description": "Documents" },
+    "/users/{userId}/health/{recordId}": { "schema": { "$ref": "#/entities/Health" }, "description": "Health" },
+    "/users/{userId}/family/{familyId}": { "schema": { "$ref": "#/entities/Family" }, "description": "Family" },
+    "/users/{userId}/learning/{itemId}": { "schema": { "$ref": "#/entities/Learning" }, "description": "Learning" },
+    "/users/{userId}/emergency/{recordId}": { "schema": { "$ref": "#/entities/Emergency" }, "description": "Emergency" },
+    "/users/{userId}/settings/{settingId}": { "schema": { "$ref": "#/entities/Settings" }, "description": "Settings" }
+  }
+}
