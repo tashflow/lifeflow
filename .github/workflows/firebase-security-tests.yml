@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   firestore-security-tests:
     name: Firestore Emulator Security Tests
@@ -40,10 +43,10 @@ jobs:
       - name: Run Firestore Security Rules Tests in Emulator
         run: |
           set -o pipefail
-          npx --no-install firebase emulators:exec \
+          firebase emulators:exec \
             --only firestore \
             --project lifeflow-stage-03c1-test \
-            "npx jest tests/firestore/firestore.rules.test.ts --ci --verbose --json --outputFile=firestore-test-results.json" 2>&1 | tee firestore-test-output.log
+            "bun run test:rules -- --ci --verbose --json --outputFile=firestore-test-results.json" 2>&1 | tee firestore-test-output.log
 
       - name: Upload Security Test Results
         if: always()
