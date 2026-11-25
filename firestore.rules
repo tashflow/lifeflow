@@ -139,62 +139,74 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
 
       match /tasks/{taskId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(taskId);
+        allow get, delete: if isOwner(userId) && isValidId(taskId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(taskId) && isValidTask(request.resource.data);
       }
 
       match /goals/{goalId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(goalId);
+        allow get, delete: if isOwner(userId) && isValidId(goalId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(goalId) && isValidGoal(request.resource.data);
       }
 
       match /routines/{routineId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(routineId);
+        allow get, delete: if isOwner(userId) && isValidId(routineId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(routineId) && isValidRoutine(request.resource.data);
       }
 
       match /calendar/{eventId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(eventId);
+        allow get, delete: if isOwner(userId) && isValidId(eventId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(eventId) && isValidCalendar(request.resource.data);
       }
 
       match /finance/{entryId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(entryId);
+        allow get, delete: if isOwner(userId) && isValidId(entryId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(entryId) && isValidFinance(request.resource.data);
       }
 
       match /notes/{noteId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(noteId);
+        allow get, delete: if isOwner(userId) && isValidId(noteId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(noteId) && isValidNote(request.resource.data);
       }
 
       match /documents/{documentId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(documentId);
+        allow get, delete: if isOwner(userId) && isValidId(documentId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(documentId) && isValidDocument(request.resource.data);
       }
 
       match /health/{recordId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(recordId);
+        allow get, delete: if isOwner(userId) && isValidId(recordId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(recordId) && isValidHealth(request.resource.data);
       }
 
       match /family/{familyId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(familyId);
+        allow get, delete: if isOwner(userId) && isValidId(familyId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(familyId) && isValidFamily(request.resource.data);
       }
 
       match /learning/{itemId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(itemId);
+        allow get, delete: if isOwner(userId) && isValidId(itemId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(itemId) && isValidLearning(request.resource.data);
       }
 
       match /emergency/{recordId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(recordId);
+        allow get, delete: if isOwner(userId) && isValidId(recordId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(recordId) && isValidEmergency(request.resource.data);
       }
 
       match /settings/{settingId} {
-        allow read, list, delete: if isOwner(userId) && isValidId(settingId);
+        allow get, delete: if isOwner(userId) && isValidId(settingId);
+        allow list: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidId(settingId) && isValidSettings(request.resource.data);
       }
     }
