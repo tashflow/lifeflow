@@ -48,13 +48,99 @@ jobs:
             --project lifeflow-stage-03c1-test \
             "bun run test:rules -- --ci --verbose --json --outputFile=firestore-test-results.json" 2>&1 | tee firestore-test-output.log
 
+      - name: Print Jest Security Test Summary
+        if: success() || failure()
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const path = 'firestore-test-results.json';
+
+          if (!fs.existsSync(path)) {
+            console.error(`ERROR: Missing Jest results file: ${path}`);
+            process.exit(1);
+          }
+
+          let results;
+          try {
+            results = JSON.parse(fs.readFileSync(path, 'utf8'));
+          } catch (err) {
+            console.error(`ERROR: Invalid JSON in ${path}: ${err.message}`);
+            process.exit(1);
+          }
+
+          const requiredNumericFields = [
+            'numPassedTestSuites',
+            'numFailedTestSuites',
+            'numTotalTests',
+            'numPassedTests',
+            'numFailedTests',
+            'numPendingTests',
+          ];
+
+          for (const field of requiredNumericFields) {
+            if (typeof results[field] !== 'number' || Number.isNaN(results[field])) {
+              console.error(`ERROR: Missing or invalid numeric field "${field}" in ${path}`);
+              process.exit(1);
+            }
+          }
+
+          if (typeof results.success !== 'boolean') {
+            console.error(`ERROR: Missing or invalid boolean field "success" in ${path}`);
+            process.exit(1);
+          }
+
+          const hasFailures =
+            !results.success ||
+            results.numFailedTestSuites > 0 ||
+            results.numFailedTests > 0 ||
+            results.numTotalTests === 0;
+
+          const overallResult = hasFailures ? 'FAIL' : 'PASS';
+
+          const lines = [
+            '=== LifeFlow Firestore Security Rules Test Summary ===',
+            `Test Suites Passed: ${results.numPassedTestSuites}`,
+            `Test Suites Failed: ${results.numFailedTestSuites}`,
+            `Total Tests:        ${results.numTotalTests}`,
+            `Passed Tests:       ${results.numPassedTests}`,
+            `Failed Tests:       ${results.numFailedTests}`,
+            `Pending Tests:      ${results.numPendingTests}`,
+            `Overall Result:     ${overallResult}`,
+            '====================================================',
+          ];
+
+          console.log(lines.join('\n'));
+
+          if (process.env.GITHUB_STEP_SUMMARY) {
+            const summaryMd = [
+              '## LifeFlow Firestore Security Rules Test Summary',
+              '',
+              '| Metric | Value |',
+              '| :--- | :--- |',
+              `| Test Suites Passed | ${results.numPassedTestSuites} |`,
+              `| Test Suites Failed | ${results.numFailedTestSuites} |`,
+              `| Total Tests | ${results.numTotalTests} |`,
+              `| Passed Tests | ${results.numPassedTests} |`,
+              `| Failed Tests | ${results.numFailedTests} |`,
+              `| Pending Tests | ${results.numPendingTests} |`,
+              `| Overall Result | **${overallResult}** |`,
+              '',
+            ].join('\n');
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summaryMd);
+          }
+
+          if (hasFailures) {
+            process.exit(1);
+          }
+          EOF
+
       - name: Upload Security Test Results
-        if: always()
+        if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
-          name: firestore-security-test-results
+          name: lifeflow-firestore-security-test-results
           path: |
             firestore-test-results.json
             firestore-test-output.log
-          if-no-files-found: ignore
+          if-no-files-found: warn
           retention-days: 14
