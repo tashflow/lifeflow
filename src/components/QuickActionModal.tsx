@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckSquare, Target, Wallet, BookOpenText } from 'lucide-react';
 import { Task, Goal, NoteItem, Transaction } from '../types';
+import { generateFirestoreDocId } from '../services/firestoreSerializers';
 
 interface QuickActionModalProps {
   isOpen: boolean;
@@ -45,8 +46,8 @@ export const QuickActionModal: React.FC<QuickActionModalProps> = ({
     if (activeType === 'task') {
       if (!taskTitle.trim()) return;
       onAddTask({
-        id: 't_' + Date.now(),
-        title: taskTitle,
+        id: generateFirestoreDocId('t'),
+        title: taskTitle.trim(),
         category: taskCategory,
         priority: taskPriority,
         dueDate: 'Today',
@@ -56,19 +57,19 @@ export const QuickActionModal: React.FC<QuickActionModalProps> = ({
     } else if (activeType === 'goal') {
       if (!goalTitle.trim()) return;
       onAddGoal({
-        id: 'g_' + Date.now(),
-        title: goalTitle,
+        id: generateFirestoreDocId('g'),
+        title: goalTitle.trim(),
         category: goalCategory,
         progress: 0,
         targetDate: '2026',
-        milestones: [{ id: 'm_' + Date.now(), title: 'Initial setup & milestone', completed: false }]
+        milestones: [{ id: 'm1', title: 'Initial setup & milestone', completed: false }]
       });
       setGoalTitle('');
     } else if (activeType === 'note') {
       if (!noteTitle.trim()) return;
       onAddNote({
-        id: 'n_' + Date.now(),
-        title: noteTitle,
+        id: generateFirestoreDocId('n'),
+        title: noteTitle.trim(),
         folder: noteFolder,
         content: noteContent,
         updatedAt: new Date().toISOString().split('T')[0]
@@ -76,11 +77,12 @@ export const QuickActionModal: React.FC<QuickActionModalProps> = ({
       setNoteTitle('');
       setNoteContent('');
     } else if (activeType === 'finance') {
-      if (!txTitle.trim() || !txAmount) return;
+      const parsedAmount = parseFloat(txAmount);
+      if (!txTitle.trim() || !Number.isFinite(parsedAmount)) return;
       onAddTransaction({
-        id: 'tx_' + Date.now(),
-        title: txTitle,
-        amount: parseFloat(txAmount),
+        id: generateFirestoreDocId('tx'),
+        title: txTitle.trim(),
+        amount: parsedAmount,
         type: txType,
         category: txCategory,
         date: new Date().toISOString().split('T')[0]

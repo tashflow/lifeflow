@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, X, CheckSquare, Target, BookOpenText, Wallet, FolderLock, ArrowRight } from 'lucide-react';
 import { Task, Goal, NoteItem, DocumentItem, Transaction, NavigationTab } from '../types';
 
@@ -24,6 +24,17 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   onNavigate,
 }) => {
   const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

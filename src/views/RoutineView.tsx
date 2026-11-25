@@ -12,7 +12,7 @@ export const RoutineView: React.FC<RoutineViewProps> = ({
   onToggleRoutine,
 }) => {
   const completedCount = routines.filter(r => r.completed).length;
-  const progress = Math.round((completedCount / routines.length) * 100);
+  const progress = routines.length > 0 ? Math.round((completedCount / routines.length) * 100) : 0;
 
   return (
     <div className="space-y-6 animate-in fade-in pb-12">
@@ -22,7 +22,7 @@ export const RoutineView: React.FC<RoutineViewProps> = ({
           <p className="text-xs text-neutral-500">Consistent daily rituals compound into extraordinary results.</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right">
+          <div className="text-end">
             <span className="text-xs font-semibold text-neutral-500 block">Today&apos;s Completion</span>
             <span className="text-lg font-bold font-mono text-[#123D32]">{progress}%</span>
           </div>
@@ -33,6 +33,12 @@ export const RoutineView: React.FC<RoutineViewProps> = ({
       </div>
 
       <div className="space-y-4">
+        {routines.length === 0 && (
+          <div className="bg-white rounded-2xl p-12 border border-[#E9ECE8] text-center text-neutral-400">
+            <Clock className="w-10 h-10 mx-auto mb-3 opacity-40" />
+            <p className="text-sm font-medium text-neutral-600">No daily routines configured yet.</p>
+          </div>
+        )}
         {routines.map(routine => (
           <div 
             key={routine.id}
@@ -65,3 +71,4 @@ export const RoutineView: React.FC<RoutineViewProps> = ({
     </div>
   );
 };
+

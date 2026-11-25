@@ -18,7 +18,8 @@ import {
   ChevronRight,
   Sparkles
 } from 'lucide-react';
-import { NavigationTab } from '../types';
+import { Language, NavigationTab } from '../types';
+import { getTranslations } from '../translations';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -27,7 +28,7 @@ interface SidebarProps {
   onToggleCollapse: () => void;
   mobileOpen: boolean;
   onCloseMobile: () => void;
-  language: string;
+  language: Language;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -37,23 +38,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   mobileOpen,
   onCloseMobile,
+  language,
 }) => {
+  const t = getTranslations(language);
+  const isRtl = language === 'ar';
+
   const menuItems: { id: NavigationTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { id: 'tasks', label: 'My Tasks', icon: <CheckSquare className="w-5 h-5" /> },
-    { id: 'calendar', label: 'Calendar', icon: <CalendarIcon className="w-5 h-5" /> },
-    { id: 'routine', label: 'Daily Routine', icon: <Clock className="w-5 h-5" /> },
-    { id: 'goals', label: 'Goals', icon: <Target className="w-5 h-5" /> },
-    { id: 'finance', label: 'My Finance', icon: <Wallet className="w-5 h-5" /> },
-    { id: 'documents', label: 'Documents', icon: <FolderLock className="w-5 h-5" /> },
-    { id: 'health', label: 'Health Reminders', icon: <HeartPulse className="w-5 h-5" /> },
-    { id: 'family', label: 'Family Hub', icon: <Users className="w-5 h-5" /> },
-    { id: 'notes', label: 'Notes & Diary', icon: <BookOpenText className="w-5 h-5" /> },
-    { id: 'learning', label: 'Learning', icon: <GraduationCap className="w-5 h-5" /> },
-    { id: 'emergency', label: 'Emergency', icon: <ShieldAlert className="w-5 h-5" /> },
-    { id: 'ai-assistant', label: 'AI Assistant', icon: <Bot className="w-5 h-5" /> },
-    { id: 'settings', label: 'Settings', icon: <SettingsIcon className="w-5 h-5" /> },
+    { id: 'dashboard', label: t.dashboard, icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: 'tasks', label: t.tasks, icon: <CheckSquare className="w-5 h-5" /> },
+    { id: 'calendar', label: t.calendar, icon: <CalendarIcon className="w-5 h-5" /> },
+    { id: 'routine', label: t.routine, icon: <Clock className="w-5 h-5" /> },
+    { id: 'goals', label: t.goals, icon: <Target className="w-5 h-5" /> },
+    { id: 'finance', label: t.finance, icon: <Wallet className="w-5 h-5" /> },
+    { id: 'documents', label: t.documents, icon: <FolderLock className="w-5 h-5" /> },
+    { id: 'health', label: t.health, icon: <HeartPulse className="w-5 h-5" /> },
+    { id: 'family', label: t.family, icon: <Users className="w-5 h-5" /> },
+    { id: 'notes', label: t.notes, icon: <BookOpenText className="w-5 h-5" /> },
+    { id: 'learning', label: t.learning, icon: <GraduationCap className="w-5 h-5" /> },
+    { id: 'emergency', label: t.emergency, icon: <ShieldAlert className="w-5 h-5" /> },
+    { id: 'ai-assistant', label: t.aiAssistant, icon: <Bot className="w-5 h-5" /> },
+    { id: 'settings', label: t.settings, icon: <SettingsIcon className="w-5 h-5" /> },
   ];
+
+  const mobileSlideClass = mobileOpen
+    ? 'translate-x-0'
+    : isRtl
+    ? 'translate-x-full md:translate-x-0'
+    : '-translate-x-full md:translate-x-0';
 
   return (
     <>
@@ -67,11 +78,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed top-0 bottom-0 left-0 z-50 flex flex-col
-        bg-[#123D32] text-[#F8F7F0] border-r border-[#1a5244]
+        fixed top-0 bottom-0 start-0 z-50 flex flex-col
+        bg-[#123D32] text-[#F8F7F0] border-e border-[#1a5244]
         transition-all duration-300 ease-in-out
         ${collapsed ? 'w-20' : 'w-64'}
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        ${mobileSlideClass}
       `}>
         {/* Brand Header */}
         <div className="flex items-center justify-between px-5 h-20 border-b border-[#1c5c4d]">
@@ -81,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-bold text-lg tracking-tight leading-none text-white">LifeFlow</h1>
+                <h1 className="font-bold text-lg tracking-tight leading-none text-white">{t.appName}</h1>
                 <span className="text-[11px] text-[#C5A45D] tracking-wide font-medium">Life OS 2026</span>
               </div>
             </div>
@@ -125,10 +136,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {item.icon}
                 </span>
                 {!collapsed && (
-                  <span className="truncate text-left">{item.label}</span>
+                  <span className="truncate text-start">{item.label}</span>
                 )}
                 {collapsed && (
-                  <div className="absolute left-full ml-3 px-2 py-1 bg-[#0f332a] text-white text-xs rounded shadow-md opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                  <div className="absolute start-full ms-3 px-2 py-1 bg-[#0f332a] text-white text-xs rounded shadow-md opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                     {item.label}
                   </div>
                 )}
@@ -140,11 +151,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Footer info inside sidebar */}
         {!collapsed && (
           <div className="p-4 border-t border-[#1c5c4d] text-xs text-[#F8F7F0]/60 bg-[#0f332a]">
-            <div className="font-medium text-white mb-0.5">Free Global Platform</div>
-            <div>No subscription • 100% Secure</div>
+            <div className="font-medium text-white mb-0.5">{t.platformTagline}</div>
+            <div>{t.platformSubtagline}</div>
           </div>
         )}
       </aside>
     </>
   );
 };
+

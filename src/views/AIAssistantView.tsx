@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { Bot, Send, Sparkles, User, Lightbulb } from 'lucide-react';
+import { Bot, Send, Sparkles, User, ShieldCheck } from 'lucide-react';
 import { ChatMessage } from '../types';
-import { GoogleGenAI } from '@google/genai';
 
 export const AIAssistantView: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'm1',
       sender: 'assistant',
-      text: 'Hello Alex! I am your LifeFlow AI Life Coach. I can help you plan your daily schedule, analyze your financial savings rate, suggest healthy meal plans, or break down long-term goals. How can I assist you today?',
+      text: 'Welcome to the LifeFlow Planning Coach. I provide offline-safe suggestions for organizing your schedule, habits, budgets, and goals without sending your data to external AI APIs.',
       timestamp: 'Just now'
     }
   ]);
@@ -19,7 +18,7 @@ export const AIAssistantView: React.FC = () => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMsgText = input;
+    const userMsgText = input.trim();
     const userMsg: ChatMessage = {
       id: 'usr_' + Date.now(),
       sender: 'user',
@@ -32,30 +31,18 @@ export const AIAssistantView: React.FC = () => {
     setLoading(true);
 
     try {
-      // Check if GEMINI_API_KEY is available or if we use intelligent simulated response
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-      
-      let replyText = "";
-      if (apiKey) {
-        const ai = new GoogleGenAI({ apiKey });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: `You are LifeFlow AI, an expert personal life coach and productivity assistant. The user asks: "${userMsgText}". Provide a concise, highly practical, encouraging response focused on personal organization, wellbeing, and goals.`
-        });
-        replyText = response.text || "I'm here to help you organize your life and live better.";
+      // Spark Free security design: keep guidance strictly local without client-side API keys (AUD-G-01).
+      await new Promise(r => setTimeout(r, 350));
+      const lower = userMsgText.toLowerCase();
+      let replyText = '';
+      if (lower.includes('budget') || lower.includes('finance') || lower.includes('saving')) {
+        replyText = 'Review your recent entries in the Finance Ledger tab: tag fixed vs. discretionary expenses first, then allocate a recurring percentage target toward your Wealth goals.';
+      } else if (lower.includes('routine') || lower.includes('habit') || lower.includes('streak')) {
+        replyText = 'Anchor each new habit to an existing daily cue (Morning, Afternoon, or Evening) in the Habits & Routines view, and protect consistency by keeping daily targets realistic.';
+      } else if (lower.includes('task') || lower.includes('plan') || lower.includes('schedule')) {
+        replyText = 'Pick up to 3 High-priority tasks in Task Flow for today, time-block them in Calendar, and clear smaller errands into one batch window.';
       } else {
-        // Intelligent fallback response
-        await new Promise(r => setTimeout(r, 800));
-        const lower = userMsgText.toLowerCase();
-        if (lower.includes('budget') || lower.includes('finance')) {
-          replyText = "Your net cashflow looks healthy ($6,410 positive this month). Consider allocating 20% of surplus towards your global index fund milestone.";
-        } else if (lower.includes('routine') || lower.includes('habit')) {
-          replyText = "Your 14-day morning mindfulness streak is excellent! To compound your progress, ensure you lock in your evening digital sunset at 8:00 PM.";
-        } else if (lower.includes('task') || lower.includes('plan')) {
-          replyText = "Let's focus on your top 3 priority tasks today. Start with 'Review Q1 Global Strategy' before 2 PM, then transition to deep work.";
-        } else {
-          replyText = `That is a wonderful objective regarding "${userMsgText}". Remember the LifeFlow principle: small daily habits compound into extraordinary life outcomes. Would you like me to create a task checklist for this?`;
-        }
+        replyText = `For "${userMsgText}", try breaking the objective into 1 concrete milestone in Life Goals and 2 actionable items in Task Flow so progress stays measurable.`;
       }
 
       const aiMsg: ChatMessage = {
@@ -70,7 +57,7 @@ export const AIAssistantView: React.FC = () => {
       setMessages(prev => [...prev, {
         id: 'err_' + Date.now(),
         sender: 'assistant',
-        text: 'I encountered a brief connection glitch, but remember: keep prioritizing your core routines and daily health goals!',
+        text: 'Could not generate local guidance right now. Check your Task Flow and Habits tabs directly.',
         timestamp: 'Just now'
       }]);
     } finally {
@@ -80,10 +67,15 @@ export const AIAssistantView: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in pb-12 max-w-4xl mx-auto">
-      <div className="bg-white p-6 rounded-2xl border border-[#E9ECE8] shadow-xs flex items-center justify-between">
+      <div className="bg-white p-6 rounded-2xl border border-[#E9ECE8] shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-[#123D32]">LifeFlow AI Life Coach</h2>
-          <p className="text-xs text-neutral-500">Your intelligent companion for daily planning, finance insights, and habit optimization.</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-xl font-bold text-[#123D32]">LifeFlow Planning Coach</h2>
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#123D32] border border-emerald-200">
+              <ShieldCheck className="w-3.5 h-3.5" /> Local Offline Mode (No Client API Keys)
+            </span>
+          </div>
+          <p className="text-xs text-neutral-500 mt-1">Rule-based planning tips running entirely in your browser to keep private notes and credentials off external servers.</p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-[#C5A45D]/20 text-[#123D32] flex items-center justify-center font-bold">
           <Bot className="w-5 h-5" />
@@ -97,7 +89,7 @@ export const AIAssistantView: React.FC = () => {
           {messages.map(msg => (
             <div 
               key={msg.id}
-              className={`flex gap-3 max-w-xl ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
+              className={`flex gap-3 max-w-xl ${msg.sender === 'user' ? 'ms-auto flex-row-reverse' : ''}`}
             >
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                 msg.sender === 'user' ? 'bg-[#123D32] text-white' : 'bg-[#C5A45D] text-[#123D32] font-bold'
@@ -106,11 +98,11 @@ export const AIAssistantView: React.FC = () => {
               </div>
               <div className={`p-4 rounded-2xl text-sm ${
                 msg.sender === 'user' 
-                  ? 'bg-[#123D32] text-white rounded-tr-xs' 
-                  : 'bg-neutral-100 text-neutral-800 rounded-tl-xs'
+                  ? 'bg-[#123D32] text-white' 
+                  : 'bg-neutral-100 text-neutral-800'
               }`}>
                 <p className="leading-relaxed">{msg.text}</p>
-                <span className={`text-[10px] block mt-1.5 font-mono ${msg.sender === 'user' ? 'text-white/70 text-right' : 'text-neutral-400'}`}>
+                <span className={`text-[10px] block mt-1.5 font-mono ${msg.sender === 'user' ? 'text-white/70 text-end' : 'text-neutral-400'}`}>
                   {msg.timestamp}
                 </span>
               </div>
@@ -123,7 +115,7 @@ export const AIAssistantView: React.FC = () => {
               </div>
               <div className="p-4 rounded-2xl bg-neutral-100 text-neutral-500 text-sm flex items-center gap-2">
                 <Sparkles className="w-4 h-4 animate-spin text-[#123D32]" />
-                <span>LifeFlow AI is thinking...</span>
+                <span>Preparing suggestion...</span>
               </div>
             </div>
           )}
@@ -135,7 +127,7 @@ export const AIAssistantView: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask AI coach for scheduling help, habit tips, or budget review..."
+            placeholder="Ask for scheduling tips, habit cues, or budget review steps..."
             className="flex-1 px-4 py-3 bg-white border border-neutral-200 rounded-xl text-sm text-neutral-900 focus:outline-none focus:border-[#123D32]"
           />
           <button
@@ -152,22 +144,25 @@ export const AIAssistantView: React.FC = () => {
       {/* Quick Prompt Starters */}
       <div className="flex flex-wrap gap-2">
         <button 
+          type="button"
           onClick={() => setInput("Plan my optimal schedule for tomorrow")}
           className="px-3.5 py-2 bg-white border border-[#E9ECE8] rounded-xl text-xs font-medium text-neutral-700 hover:border-[#123D32] transition-all"
         >
-          💡 Plan my optimal schedule for tomorrow
+          Plan my optimal schedule for tomorrow
         </button>
         <button 
+          type="button"
           onClick={() => setInput("Analyze my monthly budget & savings")}
           className="px-3.5 py-2 bg-white border border-[#E9ECE8] rounded-xl text-xs font-medium text-neutral-700 hover:border-[#123D32] transition-all"
         >
-          📊 Analyze my monthly budget & savings
+          Analyze my monthly budget & savings
         </button>
         <button 
-          onClick={() => setInput("How to maintain 14-day habit streak?")}
+          type="button"
+          onClick={() => setInput("How to maintain a daily habit streak?")}
           className="px-3.5 py-2 bg-white border border-[#E9ECE8] rounded-xl text-xs font-medium text-neutral-700 hover:border-[#123D32] transition-all"
         >
-          🔥 How to maintain 14-day habit streak?
+          How to maintain a daily habit streak?
         </button>
       </div>
     </div>

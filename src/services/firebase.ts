@@ -11,7 +11,11 @@ import {
   User
 } from 'firebase/auth';
 import { 
-  getFirestore, 
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  clearIndexedDbPersistence,
   collection, 
   doc, 
   getDocs, 
@@ -20,26 +24,30 @@ import {
   updateDoc, 
   deleteDoc, 
   onSnapshot,
-  enableIndexedDbPersistence
+  Firestore
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
-// Enable offline persistence safely
+let db: Firestore;
 try {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('The current browser does not support offline persistence.');
-    }
-  });
-} catch (e) {
-  console.error('Persistence error:', e);
+  db = initializeFirestore(
+    app,
+    {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    },
+    firebaseConfig.firestoreDatabaseId
+  );
+} catch (err) {
+  console.warn('Persistent multi-tab cache initialization failed; falling back to default Firestore instance:', err);
+  db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 }
+
+export { db };
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -51,6 +59,7 @@ export {
   signInWithPopup,
   googleProvider,
   onAuthStateChanged,
+  clearIndexedDbPersistence,
   collection,
   doc,
   getDocs,
@@ -61,3 +70,4 @@ export {
   onSnapshot
 };
 export type { User };
+

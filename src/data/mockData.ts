@@ -1,4 +1,4 @@
-import { Task, RoutineItem, Goal, Transaction, DocumentItem, HealthStat, FamilyMember, NoteItem, LearningItem } from '../types';
+import { Task, RoutineItem, Goal, Transaction, DocumentItem, HealthStat, FamilyMember, NoteItem, LearningItem, EmergencyContact, UserSettings } from '../types';
 
 export const initialTasks: Task[] = [
   { id: 't1', title: 'Review Q1 Global Strategy & Budget Allocation', category: 'Work', priority: 'High', dueDate: 'Today, 2:00 PM', completed: false, notes: 'Focus on regional expansion metrics in Europe and Middle East.' },
@@ -80,6 +80,14 @@ export const initialHealthStat: HealthStat = {
   heartRate: 64,
 };
 
+export const emptyAuthenticatedHealthStat: HealthStat = {
+  waterDrank: 0,
+  sleepHours: 0,
+  weight: 0,
+  steps: 0,
+  heartRate: 0,
+};
+
 export const initialFamilyMembers: FamilyMember[] = [
   { id: 'fam1', name: 'Maya Vance', relation: 'Spouse', status: 'In Office • Free at 6 PM', avatarColor: 'bg-emerald-700' },
   { id: 'fam2', name: 'Sam Vance', relation: 'Son (Age 10)', status: 'Soccer Practice until 4 PM', avatarColor: 'bg-amber-600' },
@@ -116,3 +124,14 @@ export const initialLearning: LearningItem[] = [
   { id: 'l3', title: 'Modern Arabic Conversational Fluency', provider: 'LinguaGlobal', progress: 100, category: 'Languages', status: 'Completed' },
   { id: 'l4', title: 'Longevity Science & Nutritional Protocols', provider: 'Stanford BioHealth', progress: 20, category: 'Health', status: 'Bookmarked' },
 ];
+
+export const initialEmergencyContacts: EmergencyContact[] = [
+  { id: 'em1', name: 'Maya Vance', phone: '+1 (555) 234-8890', relation: 'Spouse' },
+  { id: 'em2', name: 'Dr. Sarah Jenkins', phone: '+1 (555) 890-1122', relation: 'Primary Physician' },
+];
+
+export const defaultUserSettings: UserSettings = {
+  language: 'en',
+  theme: 'system',
+};
+

@@ -10,7 +10,9 @@ import {
   HeartPulse, 
   AlertCircle 
 } from 'lucide-react';
-import { Task, RoutineItem, Goal, Transaction, HealthStat, NavigationTab } from '../types';
+import { Task, RoutineItem, Goal, Transaction, HealthStat, NavigationTab, Language } from '../types';
+import { User } from '../services/firebase';
+import { getTranslations } from '../translations';
 
 interface DashboardViewProps {
   tasks: Task[];
@@ -18,6 +20,8 @@ interface DashboardViewProps {
   goals: Goal[];
   transactions: Transaction[];
   health: HealthStat;
+  user: User | null;
+  language: Language;
   onToggleTask: (id: string) => void;
   onToggleRoutine: (id: string) => void;
   onNavigate: (tab: NavigationTab) => void;
@@ -29,15 +33,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   goals,
   transactions,
   health,
+  user,
+  language,
   onToggleTask,
   onToggleRoutine,
   onNavigate,
 }) => {
-  const completedTasksCount = tasks.filter(t => t.completed).length;
+  const t = getTranslations(language);
+  const completedTasksCount = tasks.filter(tItem => tItem.completed).length;
   const taskProgress = tasks.length > 0 ? Math.round((completedTasksCount / tasks.length) * 100) : 0;
 
   const completedRoutinesCount = routines.filter(r => r.completed).length;
   const routineProgress = routines.length > 0 ? Math.round((completedRoutinesCount / routines.length) * 100) : 0;
+
+  const avgGoalProgress =
+    goals.length > 0 ? Math.round(goals.reduce((sum, g) => sum + g.progress, 0) / goals.length) : 0;
+
+  const displayName = user
+    ? user.displayName || user.email?.split('@')[0] || 'Member'
+    : 'Alex Vance';
 
   const totalExpenses = transactions
     .filter(tx => tx.type === 'expense')
@@ -49,43 +63,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in pb-12">
-      {/* Demo Notice Banner */}
-      <div className="bg-[#123D32]/5 border border-[#123D32]/20 rounded-2xl p-4 flex items-center justify-between text-[#123D32] text-xs">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#C5A45D]" />
-          <span><strong>Demo Mode Active:</strong> All life management data is populated for Stage 01 evaluation and runs securely in your local session.</span>
+      {/* Demo Notice Banner (only when signed out / demo mode) */}
+      {!user && (
+        <div className="bg-[#123D32]/5 border border-[#123D32]/20 rounded-2xl p-4 flex items-center justify-between text-[#123D32] text-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#C5A45D]" />
+            <span>{t.demoNotice}</span>
+          </div>
+          <span className="hidden sm:inline font-mono text-[10px] bg-[#123D32]/10 px-2 py-1 rounded">LifeFlow v1.0</span>
         </div>
-        <span className="hidden sm:inline font-mono text-[10px] bg-[#123D32]/10 px-2 py-1 rounded">LifeFlow v1.0</span>
-      </div>
+      )}
 
       {/* Welcome Hero Banner */}
       <div className="bg-gradient-to-r from-[#123D32] to-[#1a5244] text-[#F8F7F0] rounded-3xl p-8 shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 bottom-0 opacity-10 translate-x-12 translate-y-12">
+        <div className="absolute end-0 bottom-0 opacity-10 translate-x-12 translate-y-12">
           <Sparkles className="w-80 h-80" />
         </div>
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C5A45D]/20 text-[#C5A45D] text-xs font-semibold mb-4">
             <CalendarIcon className="w-3.5 h-3.5" />
-            <span>Sunday, November 23, 2026</span>
+            <span>{new Date().toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'ar' ? 'ar-SA' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-            Welcome back, Alex Vance
+            {t.welcomeBack}, {displayName}
           </h1>
           <p className="text-[#F8F7F0]/80 text-sm sm:text-base leading-relaxed mb-6">
-            &ldquo;Organize your life. Live better.&rdquo; You have completed {completedTasksCount} of {tasks.length} priority tasks today. Your morning mindfulness streak is strong at 14 days.
+            &ldquo;{t.tagline}&rdquo; {completedTasksCount}/{tasks.length} tasks completed today. {t.todayOverview}
           </p>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => onNavigate('tasks')}
               className="px-5 py-2.5 bg-[#C5A45D] text-[#123D32] font-bold rounded-xl hover:bg-[#b09050] transition-colors shadow-sm text-sm"
             >
-              View Today&apos;s Tasks
+              {t.viewTasks}
             </button>
             <button
               onClick={() => onNavigate('ai-assistant')}
               className="px-5 py-2.5 bg-white/10 border border-white/20 text-white font-medium rounded-xl hover:bg-white/20 transition-colors text-sm"
             >
-              Ask AI Life Coach
+              {t.askAiCoach}
             </button>
           </div>
         </div>
@@ -99,14 +115,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-2xl p-6 border border-[#E9ECE8] shadow-xs hover:border-[#123D32] cursor-pointer transition-all group"
         >
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Today&apos;s Tasks</span>
+            <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t.tasksToday}</span>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#123D32] flex items-center justify-center group-hover:scale-110 transition-transform">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-baseline justify-between mb-2">
             <span className="text-2xl font-bold font-mono text-neutral-900">{completedTasksCount}/{tasks.length}</span>
-            <span className="text-xs font-semibold text-emerald-600">+{taskProgress}%</span>
+            <span className="text-xs font-semibold text-emerald-600">{taskProgress}%</span>
           </div>
           <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
             <div className="h-full bg-[#123D32] rounded-full transition-all duration-500" style={{ width: `${taskProgress}%` }}></div>
@@ -119,7 +135,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-2xl p-6 border border-[#E9ECE8] shadow-xs hover:border-[#123D32] cursor-pointer transition-all group"
         >
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Daily Routine</span>
+            <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t.routine}</span>
             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Clock className="w-5 h-5" />
             </div>
@@ -139,17 +155,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="bg-white rounded-2xl p-6 border border-[#E9ECE8] shadow-xs hover:border-[#123D32] cursor-pointer transition-all group"
         >
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Active Goals</span>
+            <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t.goals}</span>
             <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Target className="w-5 h-5" />
             </div>
           </div>
           <div className="flex items-baseline justify-between mb-2">
-            <span className="text-2xl font-bold font-mono text-neutral-900">3 Active</span>
-            <span className="text-xs font-semibold text-teal-600">61% Avg</span>
+            <span className="text-2xl font-bold font-mono text-neutral-900">{goals.length} Active</span>
+            <span className="text-xs font-semibold text-teal-600">{avgGoalProgress}% Avg</span>
           </div>
           <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
-            <div className="h-full bg-teal-700 rounded-full transition-all duration-500" style={{ width: '61%' }}></div>
+            <div className="h-full bg-teal-700 rounded-full transition-all duration-500" style={{ width: `${avgGoalProgress}%` }}></div>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wallet, ArrowUpRight, ArrowDownLeft, Plus, DollarSign, Trash2 } from 'lucide-react';
 import { Transaction } from '../types';
+import { generateFirestoreDocId } from '../services/firestoreSerializers';
 
 interface FinanceViewProps {
   transactions: Transaction[];
@@ -33,11 +34,12 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !amount) return;
+    const parsedAmount = parseFloat(amount);
+    if (!title.trim() || !Number.isFinite(parsedAmount)) return;
     onAddTransaction({
-      id: 'tx_' + Date.now(),
-      title,
-      amount: parseFloat(amount),
+      id: generateFirestoreDocId('tx'),
+      title: title.trim(),
+      amount: parsedAmount,
       type,
       category,
       date: new Date().toISOString().split('T')[0]

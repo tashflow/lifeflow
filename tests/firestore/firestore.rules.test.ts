@@ -2,6 +2,7 @@ import { assertFails, assertSucceeds, RulesTestEnvironment } from '@firebase/rul
 import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { setupTestEnvironment } from './test-helpers';
 import { validPayloads } from './test-data';
+import { generateFirestoreDocId, serializeForCollection } from '../../src/services/firestoreSerializers';
 
 describe('LifeFlow Stage 03C.2 Comprehensive Firestore Security Rules Suite', () => {
   let testEnv: RulesTestEnvironment;
@@ -193,4 +194,15 @@ describe('LifeFlow Stage 03C.2 Comprehensive Firestore Security Rules Suite', ()
     await assertFails(setDoc(doc(db, 'admins/userA'), { role: 'admin' }));
     await assertFails(setDoc(doc(db, 'users/userA/unknownCollection/doc1'), { data: 'test' }));
   });
+
+  test('App serializers produce Firestore-rules-compliant payloads (no client id) while raw UI id is rejected', async () => {
+    const db = testEnv.authenticatedContext('userA').firestore();
+    for (const col of collections) {
+      const uiObjectWithId = { id: generateFirestoreDocId(col), ...validPayloads[col] };
+      await assertFails(setDoc(doc(db, `users/userA/${col}/${uiObjectWithId.id}`), uiObjectWithId));
+      const serialized = serializeForCollection(col, uiObjectWithId);
+      await assertSucceeds(setDoc(doc(db, `users/userA/${col}/${uiObjectWithId.id}`), serialized));
+    }
+  });
 });
+

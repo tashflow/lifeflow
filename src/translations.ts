@@ -1,13 +1,26 @@
-export const translations: Record<string, Record<string, string>> = {
+import { Language } from './types';
+
+export const translations: Record<Language, Record<string, string>> = {
   en: {
     appName: "LifeFlow",
     tagline: "Organize Your Life. Live Better.",
+    platformTagline: "Free Global Platform",
+    platformSubtagline: "No subscription • 100% Secure",
     demoNotice: "Demo Mode — All data is stored securely in your browser session for testing.",
-    searchPlaceholder: "Search tasks, goals, notes, finance... (Ctrl+K)",
-    quickAction: "Quick Action",
+    searchPlaceholder: "Search anything...",
+    quickAction: "Quick Add",
     notifications: "Notifications",
     language: "Language",
     settings: "Settings",
+    signInCloudSync: "Sign In / Cloud Sync",
+    signOut: "Sign Out",
+    signedInAs: "Signed in as",
+    demoModeLocal: "Demo Mode (Local)",
+    cloudSynced: "Cloud Synced",
+    syncing: "Syncing...",
+    pendingSync: "Pending Sync",
+    offline: "Offline",
+    syncError: "Sync Error",
     
     // Navigation
     dashboard: "Dashboard",
@@ -25,7 +38,7 @@ export const translations: Record<string, Record<string, string>> = {
     aiAssistant: "AI Assistant",
 
     // Dashboard
-    welcomeBack: "Welcome back, Alex",
+    welcomeBack: "Welcome back",
     todayOverview: "Here is your life overview for today.",
     dailyProgress: "Daily Progress",
     tasksToday: "Today's Tasks",
@@ -33,7 +46,19 @@ export const translations: Record<string, Record<string, string>> = {
     monthlyExpenses: "Monthly Expenses",
     quickAdd: "Quick Add",
     recentActivity: "Recent Activity",
-    
+    viewTasks: "View Today's Tasks",
+    askAiCoach: "Ask AI Life Coach",
+
+    // Settings
+    settingsTitle: "Platform Settings",
+    settingsSubtitle: "Manage account profile, language preferences, theme, and data privacy.",
+    profileAccount: "Profile & Account",
+    multilingualTitle: "Multilingual Architecture",
+    themeTitle: "Appearance Theme",
+    themeSystem: "System Default",
+    themeLight: "Light",
+    themeDark: "Dark",
+
     // Buttons & Actions
     save: "Save",
     cancel: "Cancel",
@@ -41,16 +66,29 @@ export const translations: Record<string, Record<string, string>> = {
     delete: "Delete",
     complete: "Complete",
     edit: "Edit",
+    retry: "Retry",
+    dismiss: "Dismiss",
   },
   bn: {
     appName: "লাইফফ্লো",
     tagline: "আপনার জীবন গুছিয়ে নিন। আরও সুন্দরভাবে বাঁচুন।",
-    demoNotice: "ডেমো মোড — সমস্ত ডেটা পরীক্ষার জন্য আপনার ব্রাউজার সেশনে নিরাপদে সংরক্ষিত।",
-    searchPlaceholder: "টাস্ক, লক্ষ্য, নোট, অর্থ খুঁজুন... (Ctrl+K)",
-    quickAction: "দ্রুত কাজ",
+    platformTagline: "ফ্রি গ্লোবাল প্ল্যাটফর্ম",
+    platformSubtagline: "সাবস্ক্রিপশন ছাড়াই • সম্পূর্ণ সুরক্ষিত",
+    demoNotice: "ডেমো মোড — সমস্ত ডেটা পরীক্ষার জন্য আপনার ব্রাউজার সেশনে সংরক্ষিত।",
+    searchPlaceholder: "যেকোনো কিছু খুঁজুন...",
+    quickAction: "দ্রুত যোগ করুন",
     notifications: "বিজ্ঞপ্তি",
     language: "ভাষা",
     settings: "সেটিংস",
+    signInCloudSync: "সাইন ইন / ক্লাউড সিঙ্ক",
+    signOut: "সাইন আউট",
+    signedInAs: "সাইন ইন করা অ্যাকাউন্ট",
+    demoModeLocal: "ডেমো মোড (লোকাল)",
+    cloudSynced: "ক্লাউড সিঙ্ক সম্পন্ন",
+    syncing: "সিঙ্ক হচ্ছে...",
+    pendingSync: "সিঙ্ক অপেক্ষমাণ",
+    offline: "অফলাইন",
+    syncError: "সিঙ্ক ত্রুটি",
     
     // Navigation
     dashboard: "ড্যাশবোর্ড",
@@ -68,7 +106,7 @@ export const translations: Record<string, Record<string, string>> = {
     aiAssistant: "এআই সহকারী",
 
     // Dashboard
-    welcomeBack: "স্বাগতম, Алекс",
+    welcomeBack: "স্বাগতম",
     todayOverview: "আজকের আপনার জীবনের সংক্ষিপ্ত বিবরণ এখানে।",
     dailyProgress: "দৈনিক অগ্রগতি",
     tasksToday: "আজকের কাজসমূহ",
@@ -76,7 +114,19 @@ export const translations: Record<string, Record<string, string>> = {
     monthlyExpenses: "মাসিক খরচ",
     quickAdd: "দ্রুত যোগ করুন",
     recentActivity: "সাম্প্রতিক কার্যকলাপ",
-    
+    viewTasks: "আজকের কাজ দেখুন",
+    askAiCoach: "এআই কোচকে জিজ্ঞাসা করুন",
+
+    // Settings
+    settingsTitle: "প্ল্যাটফর্ম সেটিংস",
+    settingsSubtitle: "অ্যাকাউন্ট প্রোফাইল, ভাষা পছন্দ, থিম এবং ডেটা গোপনীয়তা পরিচালনা করুন।",
+    profileAccount: "প্রোফাইল ও অ্যাকাউন্ট",
+    multilingualTitle: "বহুভাষিক বিন্যাস",
+    themeTitle: "অ্যাপিয়ারেন্স থিম",
+    themeSystem: "সিস্টেম ডিফল্ট",
+    themeLight: "লাইট",
+    themeDark: "ডার্ক",
+
     // Buttons & Actions
     save: "সংরক্ষণ করুন",
     cancel: "বাতিল",
@@ -84,16 +134,29 @@ export const translations: Record<string, Record<string, string>> = {
     delete: "মুছে ফেলুন",
     complete: "সম্পন্ন",
     edit: "সম্পাদনা",
+    retry: "আবার চেষ্টা করুন",
+    dismiss: "বন্ধ করুন",
   },
   ar: {
     appName: "لايف فلو",
     tagline: "نظم حياتك. عِش بشكل أفضل.",
+    platformTagline: "منصة عالمية مجانية",
+    platformSubtagline: "بدون اشتراك • آمن 100%",
     demoNotice: "وضع العرض التجريبي — يتم تخزين كافة البيانات بأمان في جلسة المتصفح الخاصة بك للاختبار.",
-    searchPlaceholder: "ابحث عن المهام والأهداف والملاحظات... (Ctrl+K)",
-    quickAction: "إجراء سريع",
+    searchPlaceholder: "ابحث عن أي شيء...",
+    quickAction: "إضافة سريعة",
     notifications: "الإشعارات",
     language: "اللغة",
     settings: "الإعدادات",
+    signInCloudSync: "تسجيل الدخول / المزامنة",
+    signOut: "تسجيل الخروج",
+    signedInAs: "مسجل الدخول كـ",
+    demoModeLocal: "وضع العرض (محلي)",
+    cloudSynced: "متزامن سحابياً",
+    syncing: "جارٍ المزامنة...",
+    pendingSync: "في انتظار المزامنة",
+    offline: "غير متصل",
+    syncError: "خطأ في المزامنة",
     
     // Navigation
     dashboard: "لوحة القيادة",
@@ -111,7 +174,7 @@ export const translations: Record<string, Record<string, string>> = {
     aiAssistant: "المساعد الذكي",
 
     // Dashboard
-    welcomeBack: "أهلاً بك مجدداً، أليكس",
+    welcomeBack: "أهلاً بك مجدداً",
     todayOverview: "إليك نظرة عامة على حياتك اليوم.",
     dailyProgress: "التقدم اليومي",
     tasksToday: "مهام اليوم",
@@ -119,7 +182,19 @@ export const translations: Record<string, Record<string, string>> = {
     monthlyExpenses: "المصاريف الشهرية",
     quickAdd: "إضافة سريعة",
     recentActivity: "النشاط الأخير",
-    
+    viewTasks: "عرض مهام اليوم",
+    askAiCoach: "اسأل المساعد الذكي",
+
+    // Settings
+    settingsTitle: "إعدادات المنصة",
+    settingsSubtitle: "إدارة ملف الحساب وتفضيلات اللغة والمظهر وخصوصية البيانات.",
+    profileAccount: "الملف الشخصي والحساب",
+    multilingualTitle: "البنية متعددة اللغات",
+    themeTitle: "مظهر التطبيق",
+    themeSystem: "افتراضي النظام",
+    themeLight: "فاتح",
+    themeDark: "داكن",
+
     // Buttons & Actions
     save: "حفظ",
     cancel: "إلغاء",
@@ -127,5 +202,12 @@ export const translations: Record<string, Record<string, string>> = {
     delete: "حذف",
     complete: "إتمام",
     edit: "تعديل",
+    retry: "إعادة المحاولة",
+    dismiss: "إغلاق",
   }
 };
+
+export function getTranslations(language: Language): Record<string, string> {
+  return translations[language] || translations.en;
+}
+

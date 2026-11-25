@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckSquare, Plus, Filter, Trash2 } from 'lucide-react';
 import { Task } from '../types';
+import { generateFirestoreDocId } from '../services/firestoreSerializers';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -28,8 +29,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
     e.preventDefault();
     if (!title.trim()) return;
     onAddTask({
-      id: 't_' + Date.now(),
-      title,
+      id: generateFirestoreDocId('t'),
+      title: title.trim(),
       category,
       priority,
       dueDate,

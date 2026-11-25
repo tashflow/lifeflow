@@ -1,11 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sparkles, X, Mail, Lock, AlertCircle } from 'lucide-react';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, googleProvider } from '../services/firebase';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
+}
+
+function formatAuthError(err: unknown, fallback: string): string {
+  const code = err && typeof err === 'object' && 'code' in err ? String((err as any).code) : '';
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Invalid email or password. Please check your credentials and try again.';
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists. Try signing in instead.';
+    case 'auth/weak-password':
+      return 'Password should be at least 6 characters long.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/popup-blocked':
+      return 'Sign-in popup was blocked by the browser. Allow popups or use email sign-in.';
+    case 'auth/popup-closed-by-user':
+      return 'Google sign-in window was closed before completing.';
+    case 'auth/network-request-failed':
+      return 'Network error while reaching Firebase Authentication. Check your connection.';
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Please wait a moment before trying again.';
+    default:
+      return err instanceof Error && err.message ? err.message : fallback;
+  }
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
@@ -16,55 +42,71 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      setError('');
+      setMessage('');
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
     setMessage('');
     setLoading(true);
 
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, email.trim(), password);
         setMessage('Account created successfully!');
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email.trim(), password);
         setMessage('Signed in successfully!');
       }
-      onSuccess();
+      onSuccess?.();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+    } catch (err: unknown) {
+      setError(formatAuthError(err, 'Authentication failed'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    if (loading) return;
     setError('');
+    setMessage('');
     setLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
-      onSuccess();
+      onSuccess?.();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Google sign-in failed');
+    } catch (err: unknown) {
+      setError(formatAuthError(err, 'Google sign-in failed'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
+    if (loading) return;
+    setError('');
+    setMessage('');
+    if (!email.trim()) {
       setError('Please enter your email address first.');
       return;
     }
+    setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email.trim());
       setMessage('Password reset email sent. Check your inbox.');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(formatAuthError(err, 'Failed to send password reset email'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,7 +120,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         <div className="bg-[#123D32] text-white p-6 relative">
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 p-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="absolute top-6 end-6 p-1.5 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close authentication modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -109,9 +152,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           )}
 
           <button
+            type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-3 px-4 border border-neutral-200 rounded-2xl font-semibold text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center justify-center gap-3 shadow-xs"
+            className="w-full py-3 px-4 border border-neutral-200 rounded-2xl font-semibold text-sm text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center justify-center gap-3 shadow-xs disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
@@ -132,14 +176,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             <div>
               <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                <Mail className="absolute start-3.5 top-3 w-4 h-4 text-neutral-400" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="alex@lifeflow.global"
-                  className="w-full pl-10 pr-4 py-2.5 border border-neutral-200 rounded-2xl text-sm focus:outline-none focus:border-[#123D32]"
+                  className="w-full ps-10 pe-4 py-2.5 border border-neutral-200 rounded-2xl text-sm focus:outline-none focus:border-[#123D32]"
                 />
               </div>
             </div>
@@ -150,22 +194,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 {!isSignUp && (
                   <button
                     type="button"
+                    disabled={loading}
                     onClick={handleForgotPassword}
-                    className="text-xs text-[#123D32] hover:underline font-medium"
+                    className="text-xs text-[#123D32] hover:underline font-medium disabled:opacity-50"
                   >
                     Forgot password?
                   </button>
                 )}
               </div>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                <Lock className="absolute start-3.5 top-3 w-4 h-4 text-neutral-400" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 border border-neutral-200 rounded-2xl text-sm focus:outline-none focus:border-[#123D32]"
+                  className="w-full ps-10 pe-4 py-2.5 border border-neutral-200 rounded-2xl text-sm focus:outline-none focus:border-[#123D32]"
                 />
               </div>
             </div>
@@ -182,7 +227,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           <div className="text-center pt-2">
             <button
               type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError('');
+                setMessage('');
+              }}
               className="text-xs text-neutral-600 hover:text-[#123D32] font-medium"
             >
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
@@ -193,3 +242,4 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     </div>
   );
 };
+

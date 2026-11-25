@@ -20,18 +20,25 @@ export const FamilyView: React.FC<FamilyViewProps> = ({ family }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {family.map(member => (
-          <div key={member.id} className="bg-white rounded-2xl p-6 border border-[#E9ECE8] shadow-xs flex flex-col items-center text-center">
-            <div className={`w-16 h-16 rounded-2xl ${member.avatarColor} text-white font-bold text-xl flex items-center justify-center shadow-md mb-4`}>
-              {member.name.split(' ').map(n => n[0]).join('')}
+      {family.length === 0 ? (
+        <div className="bg-white rounded-2xl p-12 border border-[#E9ECE8] text-center text-neutral-400">
+          <Users className="w-12 h-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-medium text-neutral-600">No family members added to your household hub yet.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {family.map(member => (
+            <div key={member.id} className="bg-white rounded-2xl p-6 border border-[#E9ECE8] shadow-xs flex flex-col items-center text-center">
+              <div className={`w-16 h-16 rounded-2xl ${member.avatarColor} text-white font-bold text-xl flex items-center justify-center shadow-md mb-4`}>
+                {member.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <h3 className="font-bold text-lg text-neutral-900">{member.name}</h3>
+              <span className="text-xs font-semibold text-[#123D32] bg-[#123D32]/10 px-2.5 py-0.5 rounded-full mt-1">{member.relation}</span>
+              <p className="text-xs text-neutral-500 mt-4 bg-neutral-50 p-3 rounded-xl w-full">{member.status}</p>
             </div>
-            <h3 className="font-bold text-lg text-neutral-900">{member.name}</h3>
-            <span className="text-xs font-semibold text-[#123D32] bg-[#123D32]/10 px-2.5 py-0.5 rounded-full mt-1">{member.relation}</span>
-            <p className="text-xs text-neutral-500 mt-4 bg-neutral-50 p-3 rounded-xl w-full">{member.status}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 border border-[#E9ECE8] shadow-xs">

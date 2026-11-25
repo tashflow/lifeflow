@@ -95,9 +95,26 @@ export interface LearningItem {
   status: 'In Progress' | 'Completed' | 'Bookmarked';
 }
 
+export interface EmergencyContact {
+  id: string;
+  name: string;
+  phone: string;
+  relation?: string;
+}
+
+export type ThemePreference = 'system' | 'light' | 'dark';
+
+export interface UserSettings {
+  language: Language;
+  theme?: ThemePreference;
+}
+
+export type SyncStatus = 'synced' | 'syncing' | 'pending' | 'offline' | 'error';
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';
   text: string;
   timestamp: string;
 }
+

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Plus, Users, Trash2 } from 'lucide-react';
+import { generateFirestoreDocId } from '../services/firestoreSerializers';
 
 export interface CalendarEventItem {
   id: string;
@@ -30,12 +31,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ events, onAddEvent, 
     e.preventDefault();
     if (!title.trim()) return;
     onAddEvent({
-      id: 'ev_' + Date.now(),
-      title,
+      id: generateFirestoreDocId('ev'),
+      title: title.trim(),
       time,
       category,
       attendees,
-      day: Number(day)
+      day: Math.min(31, Math.max(1, Number(day) || 1))
     });
     setTitle('');
     setShowModal(false);
